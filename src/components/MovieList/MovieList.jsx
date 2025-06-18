@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import MovieCard from "../MovieCard/MovieCard";
+import MovieModal from "../MovieModal/MovieModal";
 import "./MovieList.css";
 
 const MovieList = () => {
     const [movies, setMovies] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
-    const [mode, setMode] = useState("nowPlaying"); // "nowPlaying" or "search"
+    const [mode, setMode] = useState("nowPlaying");
     const [hasMoreMovies, setHasMoreMovies] = useState(true);
+    const [selectedMovie, setSelectedMovie] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         fetchMovies();
@@ -26,7 +29,6 @@ const MovieList = () => {
                 setMovies(prevMovies => [...prevMovies, ...data.results]);
             }
             
-            // Check if there are more pages available
             setHasMoreMovies(page < data.total_pages);
             console.log(data.results);
         } catch (err) {
@@ -47,6 +49,25 @@ const MovieList = () => {
         }
     };
 
+    const handleCardClick = async (movieId) => {
+        setShowModal(true);
+        setSelectedMovie(null);
+        try {
+            const response = await fetch(
+                `https://api.themoviedb.org/3/movie/${movieId}?api_key=${import.meta.env.VITE_API_KEY}`
+            );
+            const data = await response.json();
+            setSelectedMovie(data);
+        } catch (err) {
+            console.error(`Error fetching movie ${movieId}: `, err);
+        }
+    };
+
+    const handleClose = () => {
+        setShowModal(false);
+        setSelectedMovie(null);
+    };
+
     const handleLoadMore = () => {
         const nextPage = currentPage + 1;
         setCurrentPage(nextPage);
@@ -61,7 +82,7 @@ const MovieList = () => {
         if (searchQuery.trim()) {
             setMode("search");
             searchMovies(searchQuery);
-            setHasMoreMovies(false); // Disable load more for search results
+            setHasMoreMovies(false);
         }
     };
 
@@ -80,48 +101,55 @@ const MovieList = () => {
     };
 
     return (
-        <main>
-            <header>
-                <h1>Now Playing Movies</h1>
-                <div className="search-bar">
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Search for movies..."
-                    />
-                    <button onClick={handleSearch}>Search</button>
-                    <button onClick={handleClear}>Clear</button>
-                </div>
-            </header>
-            <div className="movie-list">
-                {movies.length === 0 && mode === "search" ? (
-                    <p className="no-results">No movies found for "{searchQuery}". Try a different search term.</p>
-                ) : (
-                    movies.map((movie) => (
-                        <MovieCard
-                            key={movie.id}
-                            title={movie.title}
-                            posterPath={movie.poster_path}
-                            voteAverage={movie.vote_average}
+        <>
+            <main>
+                <header>
+                    <h1>Now Playing Movies</h1>
+                    <div className="search-bar">
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            onKeyDown={handleKeyDown}
+                            placeholder="Search for movies..."
                         />
-                    ))
+                        <button onClick={handleSearch}>Search</button>
+                        <button onClick={handleClear}>Clear</button>
+                    </div>
+                </header>
+                <div className="movie-list">
+                    {movies.length === 0 && mode === "search" ? (
+                        <p className="no-results">No movies found for "{searchQuery}". Try a different search term.</p>
+                    ) : (
+                        movies.map((movie) => (
+                            <MovieCard
+                                key={movie.id}
+                                movie={movie}
+                                onClick={() => handleCardClick(movie.id)}
+                            />
+                        ))
+                    )}
+                </div>
+                {mode === "nowPlaying" && hasMoreMovies && (
+                    <div className="load-more-container">
+                        <button onClick={handleLoadMore} className="load-more-btn">
+                            Load More
+                        </button>
+                    </div>
                 )}
-            </div>
-            {mode === "nowPlaying" && hasMoreMovies && (
-                <div className="load-more-container">
-                    <button onClick={handleLoadMore} className="load-more-btn">
-                        Load More
-                    </button>
-                </div>
-            )}
-            {mode === "nowPlaying" && !hasMoreMovies && movies.length > 0 && (
-                <div className="load-more-container">
-                    <p className="no-more-movies">No more movies to show</p>
-                </div>
-            )}
-        </main>
+                {mode === "nowPlaying" && !hasMoreMovies && movies.length > 0 && (
+                    <div className="load-more-container">
+                        <p className="no-more-movies">No more movies to show</p>
+                    </div>
+                )}
+            </main>
+
+            <MovieModal
+                show={showModal}
+                onClose={handleClose}
+                movie={selectedMovie}
+            />
+        </>
     );
 };
 

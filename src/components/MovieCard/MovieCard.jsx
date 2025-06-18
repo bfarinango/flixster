@@ -1,15 +1,15 @@
 import React from "react";
 import "./MovieCard.css";
 
-const MovieCard = ({ title, posterPath, voteAverage }) => {
+const MovieCard = ({ movie, onClick }) => {
     return (
-    <div className="movie-card">
+    <div className="movie-card" onClick={onClick}>
         <img
-        src={`https://image.tmdb.org/t/p/w500${posterPath}`}
-        alt={title}
+        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+        alt={movie.title}
         />
-        <h4>{title}</h4>
-        <p>⭐ {voteAverage.toFixed(1)}</p>
+        <h4>{movie.title}</h4>
+        <p>⭐ {movie.vote_average.toFixed(1)}</p>
     </div>
     );
 };

@@ -1,0 +1,143 @@
+/* Modal overlay background*/
+.modal {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;/
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Fade-in animation for modal */
+@keyframes fadeIn {
+    from {
+    opacity: 0; /* Start invisible */
+    }
+    to {
+    opacity: 1; /* End fully visible */
+    }
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px; /* Maximum width for larger screens */
+    max-height: 85%; /* Prevent modal from being too tall */
+    overflow-y: auto; /* Allow scrolling if content is too long */
+    position: relative;
+    padding: 2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+    transform: translateY(-30px);
+    opacity: 0;
+    }
+    to {
+    transform: translateY(0);
+    opacity: 1;
+    }
+}
+
+
+.modal-header {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.modal-header button {
+    background: #f5f5f5;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%; /* circle */
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-header button:hover {
+    background: #e0e0e0;
+}
+
+.modal-body {
+    margin-top: 3rem;
+    color: #333;
+    font-size: 1rem;
+    text-align: left;
+}
+
+.modal-body p {
+  text-align: center;
+  color: #666; /* Medium gray */
+}
+
+/* Movie details container */
+.details h2 {
+  margin-bottom: 1rem; /* Space below title */
+  font-size: 1.5rem; /* Larger title */
+  color: #222; /* Dark gray title */
+  text-align: center; /* Center the title */
+}
+
+/* Backdrop image styling */
+.backdrop-image {
+  width: 100%; /* Full width of container */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 8px; /* Rounded corners */
+  margin: 1rem 0; /* Vertical spacing */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+/* General paragraph styling in details */
+.details p {
+  margin: 0.75rem 0; /* Vertical spacing between paragraphs */
+  line-height: 1.5; /* Better readability */
+}
+
+/* Section headings (Genres, Overview) */
+.details h3 {
+  margin-top: 1.5rem; /* More space above headings */
+  margin-bottom: 0.5rem; /* Less space below headings */
+  font-size: 1.2rem; /* Slightly larger than regular text */
+  color: #444; /* Medium dark gray */
+  border-bottom: 2px solid #e0e0e0; /* Underline for visual separation */
+  padding-bottom: 0.3rem; /* Space between text and underline */
+}
+
+/* Genres section specific styling */
+.genres-section ul {
+  list-style: none; /* Remove default bullet points */
+  padding: 0; /* Remove default padding */
+  margin: 0.5rem 0; /* Vertical spacing */
+  display: flex; /* Display genres in a row */
+  flex-wrap: wrap; /* Allow wrapping to next line */
+  gap: 0.5rem; /* Space between genre items */
+}
+
+/* Individual genre items */
+.genres-section li {
+  background: #f0f0f0; /* Light gray background */
+  padding: 0.3rem 0.8rem; /* Internal spacing */
+  border-radius: 16px; /* Rounded pill shape */
+  font-size: 0.9rem; /* Slightly smaller text */
+  color: #555; /* Medium gray text */
+  border: 1px solid #ddd; /* Light border */
+}
+
+/* Overview section text */
+.overview-section p {
+  line-height: 1.6; /* Better readability for longer text */
+  text-align: justify; /* Justify text for cleaner appearance */
+  margin-top: 0.5rem; /* Space above overview text */
+}

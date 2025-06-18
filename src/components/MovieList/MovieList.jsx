@@ -4,11 +4,10 @@ import "./MovieList.css";
 
 const MovieList = () => {
     const [movies, setMovies] = useState([]);
-    const [searchResults, setSearchResults] = useState([]);
-    const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [isSearchMode, setIsSearchMode] = useState(false);
-    const [totalPages, setTotalPages] = useState(0);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [mode, setMode] = useState("nowPlaying"); // "nowPlaying" or "search"
+    const [hasMoreMovies, setHasMoreMovies] = useState(true);
 
     useEffect(() => {
         fetchMovies();
@@ -26,7 +25,9 @@ const MovieList = () => {
             } else {
                 setMovies(prevMovies => [...prevMovies, ...data.results]);
             }
-            setTotalPages(data.total_pages);
+            
+            // Check if there are more pages available
+            setHasMoreMovies(page < data.total_pages);
             console.log(data.results);
         } catch (err) {
             console.error("Error fetching movies: ", err);
@@ -39,79 +40,66 @@ const MovieList = () => {
                 `https://api.themoviedb.org/3/search/movie?api_key=${import.meta.env.VITE_API_KEY}&query=${query}`
             );
             const data = await response.json();
-            setSearchResults(data.results);
-            console.log("Search results:", data.results);
+            setMovies(data.results);
+            console.log(data.results);
         } catch (err) {
             console.error("Error searching movies: ", err);
         }
+    };
+
+    const handleLoadMore = () => {
+        const nextPage = currentPage + 1;
+        setCurrentPage(nextPage);
+        fetchMovies(nextPage);
     };
 
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
 
-    const handleSearchSubmit = (event) => {
-        event.preventDefault();
+    const handleSearch = () => {
         if (searchQuery.trim()) {
+            setMode("search");
             searchMovies(searchQuery);
-            setIsSearchMode(true);
+            setHasMoreMovies(false); // Disable load more for search results
         }
     };
 
-    const handleLoadMore = () => {
-        const nextPage = currentPage + 1;
-        if (nextPage <= totalPages) {
-            setCurrentPage(nextPage);
-            fetchMovies(nextPage);
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            handleSearch();
         }
     };
 
-    const handleShowNowPlaying = () => {
-        setIsSearchMode(false);
+    const handleClear = () => {
         setSearchQuery("");
+        setMode("nowPlaying");
         setCurrentPage(1);
+        setHasMoreMovies(true);
         fetchMovies(1);
     };
-
-    const handleShowSearch = () => {
-        setIsSearchMode(true);
-    };
-
-    const displayedMovies = isSearchMode ? searchResults : movies;
-    const showLoadMore = !isSearchMode && currentPage < totalPages;
 
     return (
         <main>
             <header>
-                <h1>Flixster</h1>
-                <div className="view-toggle">
-                    <button 
-                        className={!isSearchMode ? "active" : ""} 
-                        onClick={handleShowNowPlaying}
-                    >
-                        Now Playing
-                    </button>
-                    <button 
-                        className={isSearchMode ? "active" : ""} 
-                        onClick={handleShowSearch}
-                    >
-                        Search
-                    </button>
-                </div>
-                <form className="search-bar" onSubmit={handleSearchSubmit}>
+                <h1>Now Playing Movies</h1>
+                <div className="search-bar">
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={handleSearchChange}
+                        onKeyDown={handleKeyDown}
                         placeholder="Search for movies..."
                     />
-                    <button type="submit">Search</button>
-                </form>
+                    <button onClick={handleSearch}>Search</button>
+                    <button onClick={handleClear}>Clear</button>
+                </div>
             </header>
-            
             <div className="movie-list">
-                {displayedMovies.length > 0 ? (
-                    displayedMovies.map((movie) => (
+                {movies.length === 0 && mode === "search" ? (
+                    <p className="no-results">No movies found for "{searchQuery}". Try a different search term.</p>
+                ) : (
+                    movies.map((movie) => (
                         <MovieCard
                             key={movie.id}
                             title={movie.title}
@@ -119,21 +107,18 @@ const MovieList = () => {
                             voteAverage={movie.vote_average}
                         />
                     ))
-                ) : (
-                    <p className="no-results">
-                        {isSearchMode 
-                            ? "No movies found. Try searching for a different title."
-                            : "Loading movies..."
-                        }
-                    </p>
                 )}
             </div>
-
-            {showLoadMore && (
+            {mode === "nowPlaying" && hasMoreMovies && (
                 <div className="load-more-container">
-                    <button className="load-more-btn" onClick={handleLoadMore}>
+                    <button onClick={handleLoadMore} className="load-more-btn">
                         Load More
                     </button>
+                </div>
+            )}
+            {mode === "nowPlaying" && !hasMoreMovies && movies.length > 0 && (
+                <div className="load-more-container">
+                    <p className="no-more-movies">No more movies to show</p>
                 </div>
             )}
         </main>

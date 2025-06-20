@@ -1,5 +1,9 @@
+/* Enhanced App.css with better responsive design */
 .App {
   text-align: center;
+  min-height: 100vh; /* Ensure full viewport height */
+  display: flex; /* Use flexbox for main layout */
+  flex-direction: column; /* Stack content vertically */
 }
 
 .App-header {
@@ -10,9 +14,17 @@
   justify-content: space-evenly;
   color: white;
   padding: 20px;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 
-@media (max-width: 600px) {
+/* Enhanced responsive design */
+@media (max-width: 768px) {
+  .App-header {
+    flex-direction: column; /* Stack header items vertically */
+    gap: 15px; /* Add space between stacked items */
+    padding: 15px;
+  }
+  
   .movie-card {
     width: 100%;
   }
@@ -24,5 +36,11 @@
 
   .search-bar form {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .App-header {
+    padding: 10px; /* Less padding on very small screens */
   }
 }

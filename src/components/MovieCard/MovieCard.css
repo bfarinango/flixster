@@ -9,10 +9,62 @@
     height: 320px;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .movie-card:hover {
     transform: scale(1.05);
+}
+
+.movie-icons {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 10;
+}
+
+.favorite-btn,
+.watched-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    color: #666;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-btn:hover,
+.watched-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+
+.favorite-btn {
+    color: #ccc;
+}
+
+.favorite-btn.favorite-active {
+    color: #e74c3c;
+    background: rgba(255, 255, 255, 1);
+}
+
+.watched-btn {
+    color: #ccc;
+}
+
+.watched-btn.watched-active {
+    color: #2ecc71;
+    background: rgba(255, 255, 255, 1);
 }
 
 .movie-card img {

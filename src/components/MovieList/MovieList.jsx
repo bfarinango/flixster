@@ -13,6 +13,8 @@ const MovieList = () => {
     const [sortBy, setSortBy] = useState("");
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [favorites, setFavorites] = useState([]);
+    const [watchedMovies, setWatchedMovies] = useState([]);
 
     useEffect(() => {
         fetchMovies();
@@ -44,16 +46,12 @@ const MovieList = () => {
             } else {
                 newMovies = [...originalMovies, ...data.results];
                 setOriginalMovies(newMovies);
-                setMovies(newMovies);
+                setMovies(sortBy ? sortMovies([...newMovies], sortBy) : newMovies);
             }
-            
-            if (sortBy) {
-                const sortedMovies = sortMovies([...newMovies], sortBy);
-                setMovies(sortedMovies);
+
+            if (data.results.length === 0) {
+                setHasMoreMovies(false);
             }
-            
-            setHasMoreMovies(page < data.total_pages);
-            console.log(data.results);
         } catch (err) {
             console.error("Error fetching movies: ", err);
         }
@@ -65,22 +63,15 @@ const MovieList = () => {
                 `https://api.themoviedb.org/3/search/movie?api_key=${import.meta.env.VITE_API_KEY}&query=${query}`
             );
             const data = await response.json();
-            setOriginalMovies(data.results);
             setMovies(data.results);
-            
-            if (sortBy) {
-                const sortedMovies = sortMovies([...data.results], sortBy);
-                setMovies(sortedMovies);
-            }
-            
-            console.log(data.results);
+            setOriginalMovies(data.results);
         } catch (err) {
             console.error("Error searching movies: ", err);
         }
     };
 
-    const sortMovies = (movieArray, sortOption) => {
-        switch (sortOption) {
+    const sortMovies = (movieArray, criteria) => {
+        switch (criteria) {
             case "title":
                 return movieArray.sort((a, b) => a.title.localeCompare(b.title));
             case "releaseDate":
@@ -97,7 +88,7 @@ const MovieList = () => {
         setSelectedMovie(null);
         try {
             const response = await fetch(
-                `https://api.themoviedb.org/3/movie/${movieId}?api_key=${import.meta.env.VITE_API_KEY}`
+                `https://api.themoviedb.org/3/movie/${movieId}?api_key=${import.meta.env.VITE_API_KEY}&append_to_response=videos`
             );
             const data = await response.json();
             setSelectedMovie(data);
@@ -148,6 +139,26 @@ const MovieList = () => {
         fetchMovies(1);
     };
 
+    const handleToggleFavorite = (movieId) => {
+        setFavorites(prev => {
+            if (prev.includes(movieId)) {
+                return prev.filter(id => id !== movieId);
+            } else {
+                return [...prev, movieId];
+            }
+        });
+    };
+
+    const handleToggleWatched = (movieId) => {
+        setWatchedMovies(prev => {
+            if (prev.includes(movieId)) {
+                return prev.filter(id => id !== movieId);
+            } else {
+                return [...prev, movieId];
+            }
+        });
+    };
+
     return (
         <>
             <main>
@@ -183,6 +194,10 @@ const MovieList = () => {
                                 key={movie.id}
                                 movie={movie}
                                 onClick={() => handleCardClick(movie.id)}
+                                isFavorite={favorites.includes(movie.id)}
+                                isWatched={watchedMovies.includes(movie.id)}
+                                onToggleFavorite={() => handleToggleFavorite(movie.id)}
+                                onToggleWatched={() => handleToggleWatched(movie.id)}
                             />
                         ))
                     )}

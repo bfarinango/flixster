@@ -5,6 +5,7 @@ import "./MovieList.css";
 
 const MovieList = () => {
     const [movies, setMovies] = useState([]);
+    const [originalMovies, setOriginalMovies] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const [mode, setMode] = useState("nowPlaying");
@@ -18,11 +19,15 @@ const MovieList = () => {
     }, []);
 
     useEffect(() => {
-        if (sortBy && movies.length > 0) {
-            const sortedMovies = sortMovies([...movies], sortBy);
-            setMovies(sortedMovies);
+        if (movies.length > 0) {
+            if (sortBy) {
+                const sortedMovies = sortMovies([...originalMovies], sortBy);
+                setMovies(sortedMovies);
+            } else {
+                setMovies([...originalMovies]);
+            }
         }
-    }, [sortBy]);
+    }, [sortBy, originalMovies]);
 
     const fetchMovies = async (page = 1) => {
         try {
@@ -34,9 +39,11 @@ const MovieList = () => {
             let newMovies;
             if (page === 1) {
                 newMovies = data.results;
+                setOriginalMovies(newMovies);
                 setMovies(newMovies);
             } else {
-                newMovies = [...movies, ...data.results];
+                newMovies = [...originalMovies, ...data.results];
+                setOriginalMovies(newMovies);
                 setMovies(newMovies);
             }
             
@@ -58,6 +65,7 @@ const MovieList = () => {
                 `https://api.themoviedb.org/3/search/movie?api_key=${import.meta.env.VITE_API_KEY}&query=${query}`
             );
             const data = await response.json();
+            setOriginalMovies(data.results);
             setMovies(data.results);
             
             if (sortBy) {
